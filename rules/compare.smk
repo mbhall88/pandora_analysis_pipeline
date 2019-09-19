@@ -1,8 +1,8 @@
 rule create_tsv_for_reads:
     input:
-        expand("data/{sample}/{sample}.{{coverage}}x.nanopore.fastq", sample=config["samples"])
+        expand("data/{sample}/{sample}.{{coverage}}x.{{sub_strategy}}.nanopore.fastq", sample=config["samples"])
     output:
-        "data/samples.{coverage}x.tsv"
+        "data/samples.{coverage}x.{sub_strategy}.tsv"
     threads: 1
     resources:
         mem_mb = 200
