@@ -17,7 +17,7 @@ checkpoint map_with_discovery:
         outdir = lambda wildcards, output: str(Path(output.consensus).parent),
         pandora = config["pandora_executable"],
     log:
-        "logs/{covg}x/{sub_strategy}/{sample}/map_with_discovery.log"
+        "logs/map_with_discovery/{covg}x/{sub_strategy}/{sample}.log"
     shell:
         """
         read_file=$(realpath {input.reads})
