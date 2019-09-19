@@ -3,8 +3,8 @@ from pathlib import Path
 
 checkpoint map_with_discovery:
     input:
-        prg = "data/prgs/ecoli_pangenome_PRG_210619.fa",
-        index = "data/prgs/ecoli_pangenome_PRG_210619.fa.k15.w14.idx",
+        prg = config["original_prg"],
+        index = rules.index_original_prg.output.index,
         reads = "data/{sample}/{sample}.{coverage}x.{sub_strategy}.nanopore.fastq",
     output:
         denovo_dir = directory("analysis/{coverage}x/{sub_strategy}/{sample}/map_with_discovery/denovo_paths"),
@@ -16,6 +16,7 @@ checkpoint map_with_discovery:
     params:
         outdir = lambda wildcards, output: str(Path(output.consensus).parent),
         pandora = config["pandora_executable"],
+        log_level = "debug",
     log:
         "logs/map_with_discovery/{coverage}x/{sub_strategy}/{sample}.log"
     shell:
@@ -33,7 +34,7 @@ checkpoint map_with_discovery:
             --output_kg \
             --output_covgs \
             --output_vcf \
-            --log_level debug \
+            --log_level {params.log_level} \
             --genotype \
             --discover > $log_file 2>&1
         """

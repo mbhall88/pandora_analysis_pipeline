@@ -1,8 +1,8 @@
 rule index_original_prg:
     input:
-        "data/prgs/ecoli_pangenome_PRG_210619.fa"
+         config["original_prg"]
     output:
-        index = "data/prgs/ecoli_pangenome_PRG_210619.fa.k15.w14.idx",
+        index = config["original_prg"] + ".k15.w14.idx",
         kmer_prgs = directory("data/prgs/kmer_prgs")
     threads: 16
     resources:
