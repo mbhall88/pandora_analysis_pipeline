@@ -5,11 +5,11 @@ checkpoint map_with_discovery:
     input:
         prg = "data/prgs/ecoli_pangenome_PRG_210619.fa",
         index = "data/prgs/ecoli_pangenome_PRG_210619.fa.k15.w14.idx",
-        reads = "data/{sample}/{sample}.{covg}x.{sub_strategy}.nanopore.fastq",
+        reads = "data/{sample}/{sample}.{coverage}x.{sub_strategy}.nanopore.fastq",
     output:
-        denovo_dir = directory("analysis/{covg}x/{sub_strategy}/{sample}/map_with_discovery/denovo_paths"),
-        consensus = "analysis/{covg}x/{sub_strategy}/{sample}/map_with_discovery/pandora.consensus.fq.gz",
-        genotype_vcf = "analysis/{covg}x/{sub_strategy}/{sample}/map_with_discovery/pandora_genotyped.vcf",
+        denovo_dir = directory("analysis/{coverage}x/{sub_strategy}/{sample}/map_with_discovery/denovo_paths"),
+        consensus = "analysis/{coverage}x/{sub_strategy}/{sample}/map_with_discovery/pandora.consensus.fq.gz",
+        genotype_vcf = "analysis/{coverage}x/{sub_strategy}/{sample}/map_with_discovery/pandora_genotyped.vcf",
     threads: 16
     resources:
         mem_mb = lambda wildcards, attempt: attempt * 30000
@@ -17,7 +17,7 @@ checkpoint map_with_discovery:
         outdir = lambda wildcards, output: str(Path(output.consensus).parent),
         pandora = config["pandora_executable"],
     log:
-        "logs/map_with_discovery/{covg}x/{sub_strategy}/{sample}.log"
+        "logs/map_with_discovery/{coverage}x/{sub_strategy}/{sample}.log"
     shell:
         """
         read_file=$(realpath {input.reads})

@@ -1,11 +1,11 @@
 rule minimap2:
     input:
         target = "data/{sample}/{sample}.ref.fa",
-        query = "data/{sample}/{sample}.{covg}x.nanopore.fastq"
+        query = "data/{sample}/{sample}.{coverage}x.nanopore.fastq"
     output:
-        "analysis/{covg}x/alignments/{sample}.sorted.bam"
+        "analysis/{coverage}x/alignments/{sample}.sorted.bam"
     log:
-        "logs/minimap2/{sample}.{covg}x.log"
+        "logs/minimap2/{sample}.{coverage}x.log"
     threads: 8
     resources:
         mem_mb = lambda wildcards, attempt: attempt * 8000
@@ -38,9 +38,9 @@ rule minimap2_original_nanopore_data:
 
 rule plot_filtered_data:
     input:
-        "analysis/{covg}x/alignments/{sample}.sorted.bam"
+        "analysis/{coverage}x/alignments/{sample}.sorted.bam"
     output:
-        "analysis/{covg}x/plots/{sample}/NanoPlot-report.html"
+        "analysis/{coverage}x/plots/{sample}/NanoPlot-report.html"
     singularity: config["plot"]["container"]
     threads: 4
     resources:
@@ -51,7 +51,7 @@ rule plot_filtered_data:
             " --verbose"
         )
     log:
-        "logs/plot/{sample}.{covg}x.log"
+        "logs/plot/{sample}.{coverage}x.log"
     shell:
         "NanoPlot --threads {threads} {params} --bam {input[0]} --outdir $(dirname {output[0]}) 2> {log}"
 

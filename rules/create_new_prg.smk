@@ -3,7 +3,7 @@ from pathlib import Path
 
 rule add_denovo_paths_to_msa:
     input:
-        denovo_dirs = expand("analysis/{{coverage}}x/{sample}/map_with_discovery/denovo_paths", sample=config["samples"]),
+        denovo_dirs = expand("analysis/{{coverage}}x/{{sub_strategy}}/{sample}/map_with_discovery/denovo_paths", sample=config["samples"]),
         msa = "data/msas/{clustering_tool}/{gene}.fa"
     output:
         "analysis/{coverage}x/msas/{clustering_tool}/{gene}.fa"
@@ -109,8 +109,8 @@ rule build_prg_after_adding_denovo_paths:
 
 prgs_file_names_after_denovo = []
 for clustering_tool, gene in tool_msa_pair:
-    for covg in config["coverages"]:
-        fname = f"analysis/{covg}x/prgs/{clustering_tool}/{gene}.prg.fa"
+    for coverage in config["coverages"]:
+        fname = f"analysis/{coverage}x/prgs/{clustering_tool}/{gene}.prg.fa"
         prgs_file_names_after_denovo.append(fname)
 
 rule combine_prgs_after_adding_denovo_paths:
