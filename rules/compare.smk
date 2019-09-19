@@ -1,8 +1,11 @@
+from pathlib import Path
+
+
 rule create_tsv_for_reads:
     input:
         expand("data/{sample}/{sample}.{{coverage}}x.{{sub_strategy}}.nanopore.fastq", sample=config["samples"])
     output:
-        "data/samples.{coverage}x.{sub_strategy}.tsv"
+        tsv = "data/samples.{coverage}x.{sub_strategy}.tsv"
     threads: 1
     resources:
         mem_mb = 200
@@ -14,59 +17,61 @@ rule create_tsv_for_reads:
         do
             filename=$(basename $path)
             sample_name=${{filename/.fastq}}
-            echo -e \"$sample_name\t$(realpath $path)\" >> {output} 2>> {log}
+            echo -e \"$sample_name\t$(realpath $path)\" >> {output.tsv} 2>> {log}
         done
         """ 
 
-rule compare_with_denovo:
-    input:
-        read_index = "data/samples.{coverage}x.tsv",
-        prg = "analysis/{coverage}x/prgs/denovo_updated.prg.fa",
-        prg_index = "analysis/{coverage}x/prgs/denovo_updated.prg.fa.k15.w14.idx",
-    output:
-        vcf = "analysis/{coverage}x/compare_with_denovo/pandora_multisample_genotyped.vcf",
-        vcf_ref = "analysis/{coverage}x/compare_with_denovo/pandora_multisample.vcf_ref.fa"
-    threads: 16
-    resources:
-        mem_mb = lambda wildcards, attempt: attempt * 30000
-    params:
-        pandora = "/nfs/research1/zi/mbhall/Software/pandora/build-release/pandora"
-    log:
-        "data/{coverage}x/compare_with_denovo.log"
-    shell:
-        """
-        outdir=$(dirname {output.vcf})
-        {params.pandora} compare --prg_file {input.prg} \
-            --read_index {input.read_index} \
-            --outdir $outdir \
-            -t {threads} \
-            --genotype \
-            --log_level debug > {log} 2>&1
-        """
+# rule compare_with_denovo:
+#     input:
+#         read_index = "data/samples.{coverage}x.tsv",
+#         prg = "analysis/{coverage}x/prgs/denovo_updated.prg.fa",
+#         prg_index = "analysis/{coverage}x/prgs/denovo_updated.prg.fa.k15.w14.idx",
+#     output:
+#         vcf = "analysis/{coverage}x/compare_with_denovo/pandora_multisample_genotyped.vcf",
+#         vcf_ref = "analysis/{coverage}x/compare_with_denovo/pandora_multisample.vcf_ref.fa"
+#     threads: 16
+#     resources:
+#         mem_mb = lambda wildcards, attempt: attempt * 30000
+#     params:
+#         pandora = "/nfs/research1/zi/mbhall/Software/pandora/build-release/pandora"
+#     log:
+#         "data/{coverage}x/compare_with_denovo.log"
+#     shell:
+#         """
+#         outdir=$(dirname {output.vcf})
+#         {params.pandora} compare --prg_file {input.prg} \
+#             --read_index {input.read_index} \
+#             --outdir $outdir \
+#             -t {threads} \
+#             --genotype \
+#             --log_level debug > {log} 2>&1
+#         """
 
-rule compare_without_denovo:
+rule compare_no_denovo:
     input:
-        read_index = "data/samples.{coverage}x.tsv",
-        prg = "data/prgs/ecoli_pangenome_PRG_210619.fa",
-        prg_index = "data/prgs/ecoli_pangenome_PRG_210619.fa.k15.w14.idx",
+        read_index = rules.create_tsv_for_reads.output.tsv,
+        prg = config["original_prg"],
+        prg_index = rules.index_original_prg.output.index,
     output:
-        vcf = "analysis/{coverage}x/compare_without_denovo/pandora_multisample_genotyped.vcf",
-        vcf_ref = "analysis/{coverage}x/compare_without_denovo/pandora_multisample.vcf_ref.fa",
+        vcf = "analysis/{coverage}x/{sub_strategy}/compare_no_denovo/pandora_multisample_genotyped.vcf",
+        vcf_ref = "analysis/{coverage}x/{sub_strategy}/compare_no_denovo/pandora_multisample.vcf_ref.fa",
     threads: 16
     resources:
         mem_mb = lambda wildcards, attempt: attempt * 30000
     params:
-        pandora = "/nfs/research1/zi/mbhall/Software/pandora/build-release/pandora"
+        pandora = config["pandora_executable"],
+        log_level = "debug",
+        outdir = lambda wildcards, output: str(Path(output.vcf).parent),
     log:
-        "data/{coverage}x/compare_without_denovo.log"
+        "logs/compare_no_denovo/{coverage}x/{sub_strategy}.log"
     shell:
         """
-        outdir=$(dirname {output.vcf})
-        {params.pandora} compare --prg_file {input.prg} \
+        {params.pandora} compare \
+            --prg_file {input.prg} \
             --read_index {input.read_index} \
-            --outdir $outdir \
+            --outdir {params.outdir} \
             -t {threads} \
             --genotype \
-            --log_level debug > {log} 2>&1
+            --log_level {params.log_level} > {log} 2>&1
         """
 

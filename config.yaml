@@ -18,3 +18,4 @@ samples:
   - 063_STEC
   - H131800734
 pandora_executable: "/nfs/research1/zi/mbhall/Software/pandora/build-release/pandora"
+original_prg: "data/prgs/ecoli_pangenome_PRG_210619.fa"
