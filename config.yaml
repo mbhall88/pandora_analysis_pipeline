@@ -1,0 +1,16 @@
+conda_img: "/hps/nobackup2/singularity/mbhall88/miniconda3.v4.5.12.simg"
+coverages: 
+  - 30
+  - 60
+  - 100
+filtlong: 
+  container: "/hps/nobackup2/singularity/mbhall88/filtlong.simg"
+  mean_q_weight: 10
+  min_length: 150
+plot: 
+  container: "/hps/nobackup2/singularity/mbhall88/nanoplot.v1.26.3.simg"
+samples: 
+  - CFT073
+  - ST38
+  - 063_STEC
+  - H131800734
