@@ -1,18 +1,18 @@
-rule filtlong:
+rule subsample:
     input:
         reads = "data/{sample}/{sample}.nanopore.fastq.gz",
         ref = "data/{sample}/{sample}.ref.fa",
     output:
-        "data/{sample}/{sample}.{covg}x.nanopore.fastq"
+        "data/{sample}/{sample}.{covg}x.{sub_strategy}.nanopore.fastq"
     params:
-        mean_q_weight = config['filtlong']['mean_q_weight'],
-        min_length = config['filtlong']['min_length'],
+        mean_q_weight = config['subsample']['mean_q_weight'],
+        min_length = config['subsample']['min_length'],
     threads: 1
     resources:
-        mem_mb = 1000
-    singularity: config["filtlong"]["container"]
+        mem_mb = lambda wildcards, attempt: 1000 * attempt
+    singularity: config["subsample"]["container"]
     log:
-        "logs/filtlong/{sample}.{covg}x.log"
+        "logs/subsample/{sub_strategy}/{sample}.{covg}x.log"
     shell:
         """
         bash scripts/downsample_nanopore_reads.sh \
@@ -20,6 +20,7 @@ rule filtlong:
             {input.ref} \
             {wildcards.covg} \
             {output[0]} \
+            {wildcards.sub_strategy} \
             {params.min_length} \
             {params.mean_q_weight} 2> {log}  
         """

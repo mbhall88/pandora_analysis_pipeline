@@ -3,8 +3,11 @@ coverages:
   - 30
   - 60
   - 100
-filtlong: 
-  container: "/hps/nobackup2/singularity/mbhall88/filtlong.simg"
+subsample:
+  strategies:
+    - filter
+#    - random
+  container: "containers/subsample.simg"
   mean_q_weight: 10
   min_length: 150
 plot: 
