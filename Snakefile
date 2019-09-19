@@ -31,7 +31,7 @@ output_files = []
 
 for sample, coverage, strategy in itertools.product(config["samples"], config["coverages"], config["subsample"]["strategies"]):
     output_files.extend([
-        f"data/{sample}/{sample}.{coverage}x.{strategy}.nanopore.fastq"
+        f"analysis/{coverage}x/{strategy}/{sample}/map_with_discovery/pandora_genotyped.vcf"
         # f"analysis/{coverage}x/plots/{sample}/NanoPlot-report.html",
         # f"analysis/plots/{sample}/NanoPlot-report.html",
         # f"analysis/{coverage}x/compare_without_denovo/pandora_multisample_genotyped.vcf",
@@ -51,7 +51,7 @@ rule all:
 rules_dir = Path("rules/")
 include: str(rules_dir / "filter.smk")
 # include: str(rules_dir / "plot.smk")
-# include: str(rules_dir / "index.smk")
-# include: str(rules_dir / "map.smk")
+include: str(rules_dir / "index.smk")
+include: str(rules_dir / "map.smk")
 # include: str(rules_dir / "create_new_prg.smk")
 # include: str(rules_dir / "compare.smk")

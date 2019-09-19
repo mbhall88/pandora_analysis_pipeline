@@ -17,3 +17,4 @@ samples:
   - ST38
   - 063_STEC
   - H131800734
+pandora_executable: "/nfs/research1/zi/mbhall/Software/pandora/build-release/pandora"
