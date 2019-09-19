@@ -1,5 +1,8 @@
 from pathlib import Path
 import itertools
+from snakemake.utils import min_version, validate
+
+min_version("5.4.0")
 
 # ======================================================
 # Config files
