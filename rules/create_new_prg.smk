@@ -8,7 +8,7 @@ rule add_denovo_paths:
     output:
         updated_msa = "analysis/{coverage}x/{sub_strategy}/msas/{clustering_tool}/{gene}.clustalo.fa",
         appended_msa = "analysis/{coverage}x/{sub_strategy}/msas/{clustering_tool}/{gene}.fa",
-        prg = "analysis/{coverage}x/{sub_strategy}/updated_prgs/{clustering_tool}/{gene}.prg.fa"
+        prg = "analysis/{coverage}x/{sub_strategy}/prgs/{clustering_tool}/{gene}.prg.fa"
     threads: 2
     shadow: "shallow"
     resources:
@@ -30,26 +30,11 @@ rule add_denovo_paths:
 
 
 def aggregate_prgs_input(wildcards):
-    checkpoint_output = [
-        f"analysis/{wildcards.coverage}x/{wildcards.sub_strategy}/{sample}/map_with_discovery/denovo_paths"
-        for sample in config["samples"]
-    ]
-    gene_tool_pairs_in_denovo = set()
-    for denovo_dir in checkpoint_output:
-        gene_tool_pairs_in_denovo.update(get_gene_tool_pairs_in_denovo_dir(denovo_dir))
-
     input_files = []
     for tool, gene in TOOL_MSA_PAIR:
-        if (gene, tool) in gene_tool_pairs_in_denovo:
-            # get filename for add denovo paths
-            input_files.append(
-                f"analysis/{wildcards.coverage}x/{wildcards.sub_strategy}/updated_prgs/{tool}/{gene}.prg.fa"
-            )
-        else:
-            # get filename for extract prgs_in_original prg
-            input_files.append(
-                f"analysis/{wildcards.coverage}x/{wildcards.sub_strategy}/original_prgs/{tool}/{gene}.prg.fa"
-            )
+        input_files.append(
+            f"analysis/{wildcards.coverage}x/{wildcards.sub_strategy}/prgs/{tool}/{gene}.prg.fa"
+        )
 
     return input_files
 
