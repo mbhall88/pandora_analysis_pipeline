@@ -1,8 +1,8 @@
-from pathlib import Path
-from typing import List, TextIO
-import shutil
-from snakemake.shell import shell
 import logging
+
+from pathlib import Path
+from snakemake.shell import shell
+from typing import List, TextIO
 
 log_level = snakemake.params.log_level
 logging.basicConfig(
@@ -68,21 +68,6 @@ def build_prg_after_adding_denovo_paths(
     prg: TextIO,
     gene: str,
 ):
-    """
-    if cmp -s {input.msa} {input.original_msa}  # if files are the same
-    then  # dont run make_prg - get original prg entry for this gene
-        echo "No denovo paths have been added. Getting original PRG."
-        grep -A 1 {wildcards.gene} {input.original_prg} > {output.prg} 2> {log}
-    else
-        echo "Denovo paths have been added for this gene. Running make_prg"
-        python3 {params.script} -v \
-            --max_nesting {params.max_nesting_lvl} \
-            --prefix {params.prefix} {input.msa} > {log} 2>&1
-        mv {params.prefix}.max_nest{params.max_nesting_lvl}.min_match7.prg {output.prg} >> {log} 2>&1
-        tmp_fname=$(mktemp)
-        echo '>{wildcards.gene}' | awk 1 - {output.prg} > $tmp_fname && mv $tmp_fname {output.prg} >> {log} 2>&1
-    fi
-    """
     logging.info("Building PRG for MSA.")
     shell(
         f"python3 {make_prg_script} -v --max_nesting {max_nesting_lvl} --prefix {prefix} {msa}"
@@ -112,18 +97,19 @@ def main():
 
     with appended_msa.open("w") as fh_out:
         append_denovo_paths_to_msa(denovo_paths, fh_out, old_msa)
-        run_msa_after_adding_denovo_paths(
-            str(appended_msa), str(updated_msa), snakemake.threads
+
+    run_msa_after_adding_denovo_paths(
+        str(appended_msa), str(updated_msa), snakemake.threads
+    )
+    with prg.open("w") as prg_fh:
+        build_prg_after_adding_denovo_paths(
+            snakemake.params.make_prg_script,
+            snakemake.params.max_nesting_lvl,
+            snakemake.params.prefix,
+            str(updated_msa),
+            prg_fh,
+            snakemake.wildcards.gene,
         )
-        with prg.open("w") as prg_fh:
-            build_prg_after_adding_denovo_paths(
-                snakemake.params.make_prg_script,
-                snakemake.params.max_nesting_lvl,
-                snakemake.params.prefix,
-                str(updated_msa),
-                prg_fh,
-                snakemake.wildcards.gene,
-            )
 
 
 main()

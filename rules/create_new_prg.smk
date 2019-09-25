@@ -40,23 +40,20 @@ rule extract_original_prg:
     shell:
         "grep -A 1 {wildcards.gene} {input.original_prg} > {output.prg} 2> {log}"
 
-prgs_file_names_after_denovo = []
-for clustering_tool, gene in tool_msa_pair:
-    for coverage in config["coverages"]:
-        fname = f"analysis/{coverage}x/prgs/{clustering_tool}/{gene}.prg.fa"
-        prgs_file_names_after_denovo.append(fname)
 
 def aggregate_prgs_input(wildcards):
     checkpoint_output = checkpoints.map_with_discovery.get(coverage=wildcards.coverage,
-                                                           sub_strategy=wildcards.sub_stractegy,
+                                                           sub_strategy=wildcards.sub_strategy,
                                                            sample=wildcards.sample).output.denovo_dir
     gene_tool_pairs_in_denovo = get_gene_tool_pairs_in_denovo_dir(checkpoint_output)
     input_files = []
-    for gene, tool in tool_msa_pair:
+    for tool, gene in TOOL_MSA_PAIR:
         if (gene, tool) in gene_tool_pairs_in_denovo:
             # get filename for add denovo paths
+            input_files.append(f"analysis/{wildcards.coverage}x/{wildcards.sub_strategy}/updated_prgs/{tool}/{gene}.prg.fa")
         else:
-            # get filename for extract original prg
+            # get filename for extract prgs_in_original prg
+            input_files.append(f"analysis/{wildcards.coverage}x/{wildcards.sub_strategy}/original_prgs/{tool}/{gene}.prg.fa")
 
     return input_files
 
@@ -80,32 +77,28 @@ rule aggregate_prgs:
         prgs = aggregate_prgs_input,
         original_prg = "data/prgs/ecoli_pangenome_PRG_210619.fa"
     output:
-        "analysis/{coverage}x/prgs/denovo_updated.prg.fa",
+        "analysis/{coverage}x/{sub_strategy}/prgs/denovo_updated.prg.fa",
     threads: 1
     resources:
         mem_mb = lambda wildcards, attempt: 500 * attempt
-    log:
-        "logs/{coverage}x/combine_prgs_after_adding_denovo_paths.log"
     run:
-        for p in input.prgs:
-            shell(f"awk 1 {p} >> {{output}} 2>> {{log}}")
-        # check original prg and new combined one have the same number of sequences
-        original = 0
+        import fileinput
+        with open(output[0], "w") as fout, fileinput.input(input.prgs) as fin:
+            for line in fin:
+                # strip and add newline in case some lines are missing newline
+                fout.write(line.rstrip() + "\n")
+
+        # check original prg and new prg have the same number of sequences
+        prgs_in_original = 0
         with open(input.original_prg) as fh:
             for line in fh:
                 if line.startswith(">"):
-                    original += 1
+                    prgs_in_original += 1
 
-        combined = 0
+        prgs_in_new = 0
         with open(output[0]) as fh:
             for line in fh:
                 if line.startswith(">"):
-                    combined += 1
-        assert original == combined, "Original PRG and new combined PRG dont have the same number of entries!"
-    #shell:
-    #    """
-    #    for prg in {input}
-    #    do
-    #        awk 1 $prg >> {output} 2> {log}
-    #    done
-    #    """
+                    prgs_in_new += 1
+
+        assert prgs_in_original == prgs_in_new, "Original PRG and new PRG dont have the same number of entries!"
