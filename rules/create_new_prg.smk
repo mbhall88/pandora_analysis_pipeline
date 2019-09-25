@@ -25,7 +25,7 @@ rule add_denovo_paths:
     log:
         "logs/add_denovo_paths/{coverage}x/{sub_strategy}/{clustering_tool}/{gene}.log"
     script:
-        "scripts/add_denovo_paths.py"
+        "../scripts/add_denovo_paths.py"
 
 
 
