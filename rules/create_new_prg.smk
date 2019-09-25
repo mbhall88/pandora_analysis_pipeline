@@ -42,20 +42,34 @@ rule extract_original_prg:
 
 
 def aggregate_prgs_input(wildcards):
-    checkpoint_output = checkpoints.map_with_discovery.get(coverage=wildcards.coverage,
-                                                           sub_strategy=wildcards.sub_strategy
-                                                           ).output.denovo_dir
-    gene_tool_pairs_in_denovo = get_gene_tool_pairs_in_denovo_dir(checkpoint_output)
+    checkpoint_output = []
+    for sample in config["samples"]:
+        checkpoint_output.append(
+            checkpoints.map_with_discovery.get(
+                coverage=wildcards.coverage,
+                sub_strategy=wildcards.sub_strategy,
+                sample=sample,
+            ).output.denovo_dir
+        )
+    gene_tool_pairs_in_denovo = set()
+    for denovo_dir in checkpoint_output:
+        gene_tool_pairs_in_denovo.update(get_gene_tool_pairs_in_denovo_dir(denovo_dir))
+
     input_files = []
     for tool, gene in TOOL_MSA_PAIR:
         if (gene, tool) in gene_tool_pairs_in_denovo:
             # get filename for add denovo paths
-            input_files.append(f"analysis/{wildcards.coverage}x/{wildcards.sub_strategy}/updated_prgs/{tool}/{gene}.prg.fa")
+            input_files.append(
+                f"analysis/{wildcards.coverage}x/{wildcards.sub_strategy}/updated_prgs/{tool}/{gene}.prg.fa"
+            )
         else:
             # get filename for extract prgs_in_original prg
-            input_files.append(f"analysis/{wildcards.coverage}x/{wildcards.sub_strategy}/original_prgs/{tool}/{gene}.prg.fa")
+            input_files.append(
+                f"analysis/{wildcards.coverage}x/{wildcards.sub_strategy}/original_prgs/{tool}/{gene}.prg.fa"
+            )
 
     return input_files
+
 
 def get_gene_tool_pairs_in_denovo_dir(denovo_dir: str) -> set:
     gene_tool_pairs = set()
@@ -71,6 +85,7 @@ def get_gene_tool_pairs_in_denovo_dir(denovo_dir: str) -> set:
             raise ValueError(f"Cannot find clustering tool for {name}")
 
     return gene_tool_pairs
+
 
 rule aggregate_prgs:
     input:
