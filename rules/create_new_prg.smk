@@ -43,8 +43,8 @@ rule extract_original_prg:
 
 def aggregate_prgs_input(wildcards):
     checkpoint_output = checkpoints.map_with_discovery.get(coverage=wildcards.coverage,
-                                                           sub_strategy=wildcards.sub_strategy,
-                                                           sample=wildcards.sample).output.denovo_dir
+                                                           sub_strategy=wildcards.sub_strategy
+                                                           ).output.denovo_dir
     gene_tool_pairs_in_denovo = get_gene_tool_pairs_in_denovo_dir(checkpoint_output)
     input_files = []
     for tool, gene in TOOL_MSA_PAIR:
