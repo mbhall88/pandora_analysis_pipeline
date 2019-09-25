@@ -17,7 +17,8 @@ rule add_denovo_paths:
         log_level = "DEBUG",
         make_prg_script = "scripts/make_prg_from_msa.py",
         max_nesting_lvl = config.get("max_nesting_lvl", 5),
-        prefix = lambda wildcards, output: output.prg.replace("".join(Path(output.prg).suffixes), "")
+        prefix = lambda wildcards, output: output.prg.replace("".join(Path(output.prg).suffixes), ""),
+        original_prg = config["original_prg"]
     singularity: CONDA_IMG
     conda:
         "../envs/add_denovo_paths.yaml"
@@ -27,30 +28,12 @@ rule add_denovo_paths:
         "scripts/add_denovo_paths.py"
 
 
-rule extract_original_prg:
-    input:
-        original_prg = config["original_prg"]
-    output:
-        prg = "analysis/{coverage}x/{sub_strategy}/original_prgs/{clustering_tool}/{gene}.prg.fa"
-    threads: 1
-    resources:
-        mem_mb = 200
-    log:
-       "logs/extract_original_prg/{coverage}x/{sub_strategy}/{clustering_tool}/{gene}.log"
-    shell:
-        "grep -A 1 {wildcards.gene} {input.original_prg} > {output.prg} 2> {log}"
-
 
 def aggregate_prgs_input(wildcards):
-    checkpoint_output = []
-    for sample in config["samples"]:
-        checkpoint_output.append(
-            checkpoints.map_with_discovery.get(
-                coverage=wildcards.coverage,
-                sub_strategy=wildcards.sub_strategy,
-                sample=sample,
-            ).output.denovo_dir
-        )
+    checkpoint_output = [
+        f"analysis/{wildcards.coverage}x/{wildcards.sub_strategy}/{sample}/map_with_discovery/denovo_paths"
+        for sample in config["samples"]
+    ]
     gene_tool_pairs_in_denovo = set()
     for denovo_dir in checkpoint_output:
         gene_tool_pairs_in_denovo.update(get_gene_tool_pairs_in_denovo_dir(denovo_dir))
@@ -69,6 +52,7 @@ def aggregate_prgs_input(wildcards):
             )
 
     return input_files
+
 
 
 def get_gene_tool_pairs_in_denovo_dir(denovo_dir: str) -> set:
@@ -90,12 +74,13 @@ def get_gene_tool_pairs_in_denovo_dir(denovo_dir: str) -> set:
 rule aggregate_prgs:
     input:
         prgs = aggregate_prgs_input,
-        original_prg = "data/prgs/ecoli_pangenome_PRG_210619.fa"
     output:
         "analysis/{coverage}x/{sub_strategy}/prgs/denovo_updated.prg.fa",
     threads: 1
     resources:
         mem_mb = lambda wildcards, attempt: 500 * attempt
+    params:
+          original_prg = "data/prgs/ecoli_pangenome_PRG_210619.fa"
     run:
         import fileinput
         with open(output[0], "w") as fout, fileinput.input(input.prgs) as fin:
@@ -105,7 +90,7 @@ rule aggregate_prgs:
 
         # check original prg and new prg have the same number of sequences
         prgs_in_original = 0
-        with open(input.original_prg) as fh:
+        with open(params.original_prg) as fh:
             for line in fh:
                 if line.startswith(">"):
                     prgs_in_original += 1

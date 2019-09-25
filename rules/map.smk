@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-checkpoint map_with_discovery:
+rule map_with_discovery:
     input:
         prg = config["original_prg"],
         index = rules.index_original_prg.output.index,

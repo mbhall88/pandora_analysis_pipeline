@@ -1,5 +1,6 @@
 import logging
 
+import shutil
 from pathlib import Path
 from snakemake.shell import shell
 from typing import List, TextIO
@@ -79,6 +80,12 @@ def build_prg_after_adding_denovo_paths(
     prg.write(tmp_prg.read_text() + "\n")
 
 
+def extract_gene_from_original_prg(gene: str, original_prg: str, output: str):
+    logging.info("Extracting gene from original PRG")
+    shell(f"grep -A 1 {gene} {original_prg} > {output}")
+    logging.info("Extraction complete")
+
+
 def main():
     appended_msa = Path(snakemake.output.appended_msa)
     updated_msa = Path(snakemake.output.updated_msa)
@@ -93,23 +100,28 @@ def main():
     denovo_paths = get_denovo_path_filepaths(denovo_dirs)
 
     if not denovo_paths:
-        raise Exception(f"No de novo paths found for {snakemake.wildcards.gene}")
-
-    with appended_msa.open("w") as fh_out:
-        append_denovo_paths_to_msa(denovo_paths, fh_out, old_msa)
-
-    run_msa_after_adding_denovo_paths(
-        str(appended_msa), str(updated_msa), snakemake.threads
-    )
-    with prg.open("w") as prg_fh:
-        build_prg_after_adding_denovo_paths(
-            snakemake.params.make_prg_script,
-            snakemake.params.max_nesting_lvl,
-            snakemake.params.prefix,
-            str(updated_msa),
-            prg_fh,
-            snakemake.wildcards.gene,
+        logging.info("No denovo paths found.")
+        shutil.copy(old_msa, appended_msa)
+        shutil.copy(appended_msa, updated_msa)
+        extract_gene_from_original_prg(
+            snakemake.wildcards.gene, snakemake.params.original_prg, str(prg)
         )
+    else:
+        with appended_msa.open("w") as fh_out:
+            append_denovo_paths_to_msa(denovo_paths, fh_out, old_msa)
+
+        run_msa_after_adding_denovo_paths(
+            str(appended_msa), str(updated_msa), snakemake.threads
+        )
+        with prg.open("w") as prg_fh:
+            build_prg_after_adding_denovo_paths(
+                snakemake.params.make_prg_script,
+                snakemake.params.max_nesting_lvl,
+                snakemake.params.prefix,
+                str(updated_msa),
+                prg_fh,
+                snakemake.wildcards.gene,
+            )
 
 
 main()
