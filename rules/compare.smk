@@ -10,7 +10,7 @@ rule create_tsv_for_reads:
     resources:
         mem_mb = 200
     log:
-        "logs/create_tsv_for_reads.{coverage}x.log"
+        "logs/create_tsv_for_reads/{coverage}x/{sub_strategy}.log"
     shell:
         """
         for path in {input}
