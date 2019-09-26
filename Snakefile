@@ -54,7 +54,7 @@ rule all:
         output_files
 
 rules_dir = Path("rules/")
-include: str(rules_dir / "filter.smk")
+include: str(rules_dir / "subsample.smk")
 # include: str(rules_dir / "plot.smk")
 include: str(rules_dir / "index.smk")
 include: str(rules_dir / "map.smk")
