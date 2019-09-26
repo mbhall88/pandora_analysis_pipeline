@@ -21,20 +21,14 @@ rule map_with_discovery:
         "logs/map_with_discovery/{coverage}x/{sub_strategy}/{sample}.log"
     shell:
         """
-        read_file=$(realpath {input.reads})
-        prg_file=$(realpath {input.prg})
-        log_file=$(realpath {log})
-        mkdir -p {params.outdir}
-        cd {params.outdir} || exit 1
-
-        {params.pandora} map --prg_file $prg_file \
-            --read_file $read_file \
-            --outdir $(pwd) \
+        {params.pandora} map --prg_file {input.prg} \
+            --read_file {input.reads} \
+            --outdir {params.outdir} \
             -t {threads} \
             --output_kg \
             --output_covgs \
             --output_vcf \
             --log_level {params.log_level} \
             --genotype \
-            --discover > $log_file 2>&1
+            --discover > {log} 2>&1
         """
