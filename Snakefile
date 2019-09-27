@@ -9,7 +9,6 @@ min_version("5.4.0")
 # ======================================================
 configfile: "config.yaml"
 
-
 # ======================================================
 # Functions
 # ======================================================
@@ -32,26 +31,24 @@ for gene_name in cluster_name_to_path_map:
 
 output_files = []
 
-for sample, coverage, strategy in itertools.product(config["samples"], config["coverages"], config["subsample"]["strategies"]):
+for sample, coverage, strategy in itertools.product(config["samples"],
+                                                    config["coverages"],
+                                                    config["subsample"]["strategies"]):
     output_files.extend([
         f"analysis/{coverage}x/{strategy}/{sample}/map_with_discovery/pandora_genotyped.vcf",
         f"analysis/{coverage}x/{strategy}/prgs/denovo_updated.prg.fa",
         f"analysis/{coverage}x/{strategy}/compare_no_denovo/pandora_multisample_genotyped.vcf",
+        f"analysis/{coverage}x/{strategy}/compare_with_denovo/pandora_multisample_genotyped.vcf",
         # f"analysis/{coverage}x/plots/{sample}/NanoPlot-report.html",
         # f"analysis/plots/{sample}/NanoPlot-report.html",
-        # f"analysis/{coverage}x/compare_no_denovo/pandora_multisample_genotyped.vcf",
-        # f"analysis/{coverage}x/{sample}/map_with_discovery/pandora_genotyped.vcf",
     ])
-
-#
-# output_files.extend(prgs_file_names_after_denovo)
 
 # ======================================================
 # Rules
 # ======================================================
 rule all:
     input:
-        output_files
+         output_files
 
 rules_dir = Path("rules/")
 include: str(rules_dir / "subsample.smk")
