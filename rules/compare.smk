@@ -25,7 +25,7 @@ rule compare_with_denovo:
     input:
          read_index=rules.create_tsv_for_reads.output.tsv,
          prg="analysis/{coverage}x/{sub_strategy}/prgs/denovo_updated.prg.fa",
-         prg_index=rules.index_original_prg.output.index,
+         prg_index=rules.index_prg_updated_with_denovo_paths.output.index,
     output:
           vcf="analysis/{coverage}x/{sub_strategy}/compare_with_denovo/pandora_multisample_genotyped.vcf",
           vcf_ref="analysis/{coverage}x/{sub_strategy}/compare_with_denovo/pandora_multisample.vcf_ref.fa",
