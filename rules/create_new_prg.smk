@@ -65,7 +65,7 @@ rule aggregate_prgs:
     resources:
         mem_mb = lambda wildcards, attempt: 500 * attempt
     params:
-          original_prg = "data/prgs/ecoli_pangenome_PRG_210619.fa"
+        original_prg = "data/prgs/ecoli_pangenome_PRG_210619.fa"
     run:
         import fileinput
         with open(output[0], "w") as fout, fileinput.input(input.prgs) as fin:
