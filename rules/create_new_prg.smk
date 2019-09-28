@@ -86,4 +86,4 @@ rule aggregate_prgs:
                 if line.startswith(">"):
                     prgs_in_new += 1
 
-        assert prgs_in_original == prgs_in_new, "Original PRG and new PRG dont have the same number of entries!"
+        assert prgs_in_original == prgs_in_new, f"Original PRG ({prgs_in_original}) and new PRG ({prgs_in_new}) dont have the same number of entries!"

@@ -82,7 +82,7 @@ def build_prg_after_adding_denovo_paths(
 
 def extract_gene_from_original_prg(gene: str, original_prg: str, output: str):
     logging.info("Extracting gene from original PRG")
-    shell(f"grep -A 1 {gene} {original_prg} > {output}")
+    shell(f"grep -A 1 '>{gene}$' {original_prg} > {output}")
     logging.info("Extraction complete")
 
 
