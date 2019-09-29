@@ -71,7 +71,11 @@ rule aggregate_prgs:
         with open(output[0], "w") as fout, fileinput.input(input.prgs) as fin:
             for line in fin:
                 # strip and add newline in case some lines are missing newline
-                fout.write(line.rstrip() + "\n")
+                stripped_line = line.rstrip()
+                line_ends_digit = stripped_line[-1].isdigit()
+                if line_ends_digit:
+                    stripped_line += " "
+                fout.write(stripped_line + "\n")
 
         # check original prg and new prg have the same number of sequences
         prgs_in_original = 0
