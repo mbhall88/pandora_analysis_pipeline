@@ -70,10 +70,11 @@ rule aggregate_prgs:
         import fileinput
         with open(output[0], "w") as fout, fileinput.input(input.prgs) as fin:
             for line in fin:
+                is_header = line.startswith(">")
                 # strip and add newline in case some lines are missing newline
                 stripped_line = line.rstrip()
                 line_ends_digit = stripped_line[-1].isdigit()
-                if line_ends_digit:
+                if (not is_header) and line_ends_digit:
                     stripped_line += " "
                 fout.write(stripped_line + "\n")
 
