@@ -1,4 +1,4 @@
-conda_img: "/hps/nobackup2/singularity/mbhall88/miniconda3.v4.5.12.simg"
+make_prg_dependencies_img: "containers/make_prg_dependencies.simg"
 coverages: 
   - 30
   - 60

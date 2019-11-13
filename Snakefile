@@ -17,7 +17,6 @@ configfile: "config.yaml"
 # ======================================================
 # Variables
 # ======================================================
-CONDA_IMG = config["conda_img"]
 msa_paths = list(Path("data/msas").rglob("*.fa"))
 cluster_name_to_path_map = {p.name.replace(".fa", ""): p for p in msa_paths}
 assert len(msa_paths) == len(cluster_name_to_path_map)

@@ -19,9 +19,7 @@ rule add_denovo_paths:
         max_nesting_lvl = config.get("max_nesting_lvl", 5),
         prefix = lambda wildcards, output: output.prg.replace("".join(Path(output.prg).suffixes), ""),
         original_prg = config["original_prg"]
-    singularity: CONDA_IMG
-    conda:
-        "../envs/add_denovo_paths.yaml"
+    singularity: config["make_prg_dependencies_img"]
     log:
         "logs/add_denovo_paths/{coverage}x/{sub_strategy}/{clustering_tool}/{gene}.log"
     script:
