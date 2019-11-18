@@ -26,4 +26,5 @@ MirrorURL: http://us.archive.ubuntu.com/ubuntu/
     # INSTALL pip3 and dependencies
     # ========================
     apt install -y python3-pip
-    pip3 install biopython==1.72 numpy==1.14.5 scikit-learn==0.20.3
+    pip3 install biopython==1.72 numpy==1.14.5 scikit-learn==0.20.3 snakemake
+    cp /usr/bin/python3 /usr/bin/python
