@@ -20,17 +20,20 @@ num_bases_to_keep=$((genome_size * covg))
 
 if [ "$strategy" = "filter" ]
 then
-  filtlong \
-      --verbose \
-      --target_bases "$num_bases_to_keep" \
-      --min_length "$min_len" \
-      --mean_q_weight "$q_weight" \
-      "$reads" > "$outname"
+    filtlong \
+        --verbose \
+        --target_bases "$num_bases_to_keep" \
+        --min_length "$min_len" \
+        --mean_q_weight "$q_weight" \
+        "$reads" > "$outname"
 elif [ "$strategy" = "random" ]
 then
-  echo "Not implemented yet"
-  exit 1
+    rasusa --input "$reads" \
+        --coverage "$covg" \
+        --genome-size "$genome_size" \
+        --output "$outname" \
+        -v
 else
-  echo "Invalid strategy given: $strategy"
-  exit 1
+    echo "Invalid strategy given: $strategy"
+    exit 1
 fi
