@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 if [[ "$#" -lt 5 ]]; then
     echo "Error: Illegal number of parameters"
-    echo -e "usage:\n$(basename "$0") <reads> <ref> <covg> <outname> <strategy> [<min_len> <q_weight>]"
+    echo -e "usage:\n$(basename "$0") <reads> <ref> <covg> <outname> <strategy> [<min_len> <q_weight> <seed>]"
     exit 1
 fi
 
@@ -14,6 +14,7 @@ outname="$4"
 strategy="$5"
 min_len="${6:-1}"
 q_weight="${7:-10}"
+seed="${8:-1}"
 
 genome_size=$(grep -v '^>' "$ref" | wc | awk '{print $3-$1}')
 num_bases_to_keep=$((genome_size * covg))
@@ -32,6 +33,7 @@ then
         --coverage "$covg" \
         --genome-size "$genome_size" \
         --output "$outname" \
+        --seed "$seed" \
         -v
 else
     echo "Invalid strategy given: $strategy"
