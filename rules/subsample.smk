@@ -7,6 +7,7 @@ rule subsample:
     params:
         mean_q_weight=config['subsample']['mean_q_weight'],
         min_length=config['subsample']['min_length'],
+        seed=config['subsample']['seed'],
     threads: 1
     resources:
         mem_mb=lambda wildcards, attempt: 1000 * attempt
@@ -22,5 +23,6 @@ rule subsample:
             {output[0]} \
             {wildcards.sub_strategy} \
             {params.min_length} \
-            {params.mean_q_weight} 2> {log}  
+            {params.mean_q_weight} \
+            {params.seed} 2> {log}  
         """
