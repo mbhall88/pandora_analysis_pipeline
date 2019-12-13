@@ -27,7 +27,7 @@ subsample:
 
 
 # other configs
-pandora_executable: "/nfs/research1/zi/mbhall/Software/pandora/build-release/pandora"
+pandora_executable: "/hps/nobackup/research/zi/projects/pandora_paper/pandora/pandora/build/pandora"
 make_prg_dependencies_img: "containers/make_prg_dependencies.simg"
 plot:
   container: "/hps/nobackup2/singularity/mbhall88/nanoplot.v1.26.3.simg"
