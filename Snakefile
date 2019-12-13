@@ -29,18 +29,23 @@ for gene_name in cluster_name_to_path_map:
         TOOL_MSA_PAIR.append(("piggy", gene_name))
 
 output_files = []
-
-for sample, coverage, strategy in itertools.product(config["samples"],
+for technology, sample, coverage, strategy in itertools.product(
+                                                    config["technologies"],
+                                                    config["samples"],
                                                     config["coverages"],
                                                     config["subsample"]["strategies"]):
     output_files.extend([
-        f"analysis/{coverage}x/{strategy}/{sample}/map_with_discovery/pandora_genotyped.vcf",
-        f"analysis/{coverage}x/{strategy}/prgs/denovo_updated.prg.fa",
-        f"analysis/{coverage}x/{strategy}/compare_no_denovo/pandora_multisample_genotyped.vcf",
-        f"analysis/{coverage}x/{strategy}/compare_with_denovo/pandora_multisample_genotyped.vcf",
+        f"analysis/{technology}/{coverage}x/{strategy}/{sample}/map_with_discovery/pandora_genotyped.vcf",
+        f"analysis/{technology}/{coverage}x/{strategy}/prgs/denovo_updated.prg.fa",
+        f"analysis/{technology}/{coverage}x/{strategy}/compare_no_denovo/pandora_multisample_genotyped.vcf",
+        f"analysis/{technology}/{coverage}x/{strategy}/compare_with_denovo/pandora_multisample_genotyped.vcf",
         # f"analysis/{coverage}x/plots/{sample}/NanoPlot-report.html",
         # f"analysis/plots/{sample}/NanoPlot-report.html",
     ])
+
+
+# deduplicate
+output_files = list(set(output_files))
 
 # ======================================================
 # Rules

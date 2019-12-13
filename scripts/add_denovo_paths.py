@@ -91,7 +91,7 @@ def main():
     updated_msa = Path(snakemake.output.updated_msa)
     old_msa = Path(snakemake.input.msa)
     prg = Path(snakemake.output.prg)
-    denovo_dirs = snakemake.input.denovo_dirs
+    denovo_dirs = snakemake.params.denovo_dirs
 
     if not appended_msa.parent.is_dir():
         logging.debug("Creating parent directory for new MSA.")

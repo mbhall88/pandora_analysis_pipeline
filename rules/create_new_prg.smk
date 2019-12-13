@@ -3,12 +3,12 @@ from pathlib import Path
 
 rule add_denovo_paths:
     input:
-        denovo_dirs = expand("analysis/{{coverage}}x/{{sub_strategy}}/{sample}/map_with_discovery/denovo_paths", sample=config["samples"]),
+        map_with_discovery_dirs = expand("analysis/{{technology}}/{{coverage}}x/{{sub_strategy}}/{sample}/map_with_discovery", sample=config["samples"]),
         msa = "data/msas/{clustering_tool}/{gene}.fa"
     output:
-        updated_msa = "analysis/{coverage}x/{sub_strategy}/msas/{clustering_tool}/{gene}.clustalo.fa",
-        appended_msa = "analysis/{coverage}x/{sub_strategy}/msas/{clustering_tool}/{gene}.fa",
-        prg = "analysis/{coverage}x/{sub_strategy}/prgs/{clustering_tool}/{gene}.prg.fa"
+        updated_msa = "analysis/{technology}/{coverage}x/{sub_strategy}/msas/{clustering_tool}/{gene}.clustalo.fa",
+        appended_msa = "analysis/{technology}/{coverage}x/{sub_strategy}/msas/{clustering_tool}/{gene}.fa",
+        prg = "analysis/{technology}/{coverage}x/{sub_strategy}/prgs/{clustering_tool}/{gene}.prg.fa"
     threads: 2
     shadow: "shallow"
     resources:
@@ -18,10 +18,12 @@ rule add_denovo_paths:
         make_prg_script = "scripts/make_prg_from_msa.py",
         max_nesting_lvl = config.get("max_nesting_lvl", 5),
         prefix = lambda wildcards, output: output.prg.replace("".join(Path(output.prg).suffixes), ""),
-        original_prg = config["original_prg"]
+        original_prg = config["original_prg"],
+        denovo_dirs = lambda wildcards, input: [map_with_discovery_dir+"/denovo_paths"
+                                                for map_with_discovery_dir in input.map_with_discovery_dirs]
     singularity: config["make_prg_dependencies_img"]
     log:
-        "logs/add_denovo_paths/{coverage}x/{sub_strategy}/{clustering_tool}/{gene}.log"
+        "logs/add_denovo_paths/{technology}/{coverage}x/{sub_strategy}/{clustering_tool}/{gene}.log"
     script:
         "../scripts/add_denovo_paths.py"
 
@@ -31,34 +33,17 @@ def aggregate_prgs_input(wildcards):
     input_files = []
     for tool, gene in TOOL_MSA_PAIR:
         input_files.append(
-            f"analysis/{wildcards.coverage}x/{wildcards.sub_strategy}/prgs/{tool}/{gene}.prg.fa"
+            f"analysis/{wildcards.technology}/{wildcards.coverage}x/{wildcards.sub_strategy}/prgs/{tool}/{gene}.prg.fa"
         )
 
     return input_files
-
-
-
-def get_gene_tool_pairs_in_denovo_dir(denovo_dir: str) -> set:
-    gene_tool_pairs = set()
-    denovo_files = Path(denovo_dir).rglob("*discovery.fa")
-    for path in denovo_files:
-        name = path.name
-        gene = name.split(".")[0]
-        if gene.startswith("Cluster"):
-            gene_tool_pairs.add((gene, "piggy"))
-        elif gene.startswith("GC"):
-            gene_tool_pairs.add((gene, "panx"))
-        else:
-            raise ValueError(f"Cannot find clustering tool for {name}")
-
-    return gene_tool_pairs
 
 
 rule aggregate_prgs:
     input:
         prgs = aggregate_prgs_input,
     output:
-        "analysis/{coverage}x/{sub_strategy}/prgs/denovo_updated.prg.fa",
+        "analysis/{technology}/{coverage}x/{sub_strategy}/prgs/denovo_updated.prg.fa",
     threads: 1
     resources:
         mem_mb = lambda wildcards, attempt: 500 * attempt
