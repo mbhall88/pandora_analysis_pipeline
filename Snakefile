@@ -35,7 +35,7 @@ for technology, sample, coverage, strategy in itertools.product(
                                                     config["coverages"],
                                                     config["subsample"]["strategies"]):
     output_files.extend([
-        f"analysis/{technology}/{coverage}x/{strategy}/{sample}/map_with_discovery/pandora_genotyped.vcf",
+        directory(f"analysis/{technology}/{coverage}x/{strategy}/{sample}/map_with_discovery"),
         f"analysis/{technology}/{coverage}x/{strategy}/prgs/denovo_updated.prg.fa",
         f"analysis/{technology}/{coverage}x/{strategy}/compare_no_denovo/pandora_multisample_genotyped.vcf",
         f"analysis/{technology}/{coverage}x/{strategy}/compare_with_denovo/pandora_multisample_genotyped.vcf",
