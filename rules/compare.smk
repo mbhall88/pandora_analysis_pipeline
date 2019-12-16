@@ -1,4 +1,5 @@
 from pathlib import Path
+from rules.utils import get_technology_param
 
 rule create_tsv_for_reads:
     input:
@@ -36,6 +37,7 @@ rule compare_with_denovo:
         pandora=config["pandora_executable"],
         log_level="debug",
         outdir=lambda wildcards, output: str(Path(output.vcf).parent),
+        technology_param = lambda wildcards: get_technology_param(wildcards)
     log:
         "logs/compare_with_denovo/{technology}/{coverage}x/{sub_strategy}.log"
     shell:
@@ -45,6 +47,8 @@ rule compare_with_denovo:
             --outdir {params.outdir} \
             -t {threads} \
             --genotype \
+            --max_covg 100000 \
+            {params.technology_param} \
             --log_level {params.log_level} > {log} 2>&1
         """
 
@@ -63,6 +67,7 @@ rule compare_no_denovo:
         pandora=config["pandora_executable"],
         log_level="debug",
         outdir=lambda wildcards, output: str(Path(output.vcf).parent),
+        technology_param = lambda wildcards: get_technology_param(wildcards)
     log:
         "logs/compare_no_denovo/{technology}/{coverage}x/{sub_strategy}.log"
     shell:
@@ -73,5 +78,7 @@ rule compare_no_denovo:
             --outdir {params.outdir} \
             -t {threads} \
             --genotype \
+            --max_covg 100000 \
+            {params.technology_param} \
             --log_level {params.log_level} > {log} 2>&1
         """
