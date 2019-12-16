@@ -1,5 +1,3 @@
-from rules.utils import get_technology_param
-
 rule map_with_discovery:
     input:
         prg=config["original_prg"],
@@ -15,7 +13,6 @@ rule map_with_discovery:
         pandora=config["pandora_executable"],
         log_level="debug",
         use_discover=True,
-        technology_param = lambda wildcards: get_technology_param(wildcards)
     log:
         "logs/map_with_discovery/{technology}/{coverage}x/{sub_strategy}/{sample}.log"
     shell:
@@ -24,8 +21,7 @@ rule map_with_discovery:
             {input.reads} \
             {output.outdir} \
             {threads} \
-            --max_covg 100000 \
-            {params.technology_param} \
+            {wildcards.technology} \
             {params.log_level} \
             {log} \
             {params.use_discover} \
