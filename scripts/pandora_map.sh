@@ -10,7 +10,7 @@ technology="$6"
 log_level="$7"
 log=$(realpath "$8")
 use_discover="$9"
-input_ref="$10"
+input_ref="${10}"
 
 if [ "${use_discover,,}" = "true" ]; then
     discover="--discover"
