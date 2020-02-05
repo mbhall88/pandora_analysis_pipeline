@@ -6,9 +6,8 @@ name = "pypi"
 
 
 [packages]
-
 snakemake = "*"
-
+pysam = "==0.15.2"
 
 [dev-packages]
 
